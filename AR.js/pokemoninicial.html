@@ -9,10 +9,39 @@
     <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
     <script>
         THREEx.ArToolkitContext.baseURL = 'https://raw.githack.com/jeromeetienne/ar.js/master/three.js/'
-        navigator.geolocation.getCurrentPosition((loc) => {
-            var mag = Document.getElementById("magnemite");
-            mag.setAttribute("gps-entity-place") = "longitude: "+loc.coords.longitude+"; latitude: "+loc.coords.latitude+";";
-            });
+        
+
+
+            window.onload = () => {
+                
+                //let places = staticLoadPlaces();
+                renderPlaces(places);
+            };
+
+            
+
+            function renderPlaces(places) {
+                let scene = document.querySelector('a-scene');
+
+                navigator.geolocation.getCurrentPosition((loc) => {
+                    let latitude = loc.coords.longitude;
+                    let longitude = loc.coords.latitude;
+
+                    let model = document.createElement('a-entity');
+                    model.setAttribute('gps-entity-place', `latitude: ${latitude}; longitude: ${longitude};`);
+                    model.setAttribute('gltf-model', './assets/magnemite/scene.gltf');
+                    model.setAttribute('rotation', '0 180 0');
+                    model.setAttribute('animation-mixer', '');
+                    model.setAttribute('scale', '0.5 0.5 0.5');
+
+                    model.addEventListener('loaded', () => {
+                        window.dispatchEvent(new CustomEvent('gps-entity-place-loaded'))
+                    });
+
+                    scene.appendChild(model);
+                });
+            }
+                        
     </script>
 </head>
 
@@ -21,7 +50,6 @@
         vr-mode-ui="enabled: false"
 		embedded
         arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'>
-        <a-entity id="magnemite" gltf-model="./assets/magnemite/scene.gltf" rotation="0 180 0" scale="0.15 0.15 0.15" gps-entity-place="longitude: 42.418424; latitude: -2.730346;" animation-mixer/>
         
         <a-camera gps-camera rotation-reader></a-camera>
 	</a-scene>
